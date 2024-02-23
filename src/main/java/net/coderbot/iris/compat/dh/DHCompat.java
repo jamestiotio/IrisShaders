@@ -21,6 +21,7 @@ public class DHCompat {
 	private static MethodHandle getFarPlane;
 	private static MethodHandle getNearPlane;
 	private static MethodHandle getDepthTexNoTranslucent;
+	private static MethodHandle checkFrame;
 	private static MethodHandle getRenderDistance;
 	private static MethodHandle renderShadowSolid;
 	private static MethodHandle renderShadowTranslucent;
@@ -47,6 +48,7 @@ public class DHCompat {
 				getFarPlane = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "getFarPlane", MethodType.methodType(float.class));
 				getNearPlane = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "getNearPlane", MethodType.methodType(float.class));
 				getDepthTexNoTranslucent = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "getDepthTexNoTranslucent", MethodType.methodType(int.class));
+				checkFrame = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "checkFrame", MethodType.methodType(void.class));
 				renderShadowSolid = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "renderShadowSolid", MethodType.methodType(void.class));
 				renderShadowTranslucent = MethodHandles.lookup().findVirtual(Class.forName("net.coderbot.iris.compat.dh.DHCompatInternal"), "renderShadowTranslucent", MethodType.methodType(void.class));
 			}
@@ -145,6 +147,16 @@ public class DHCompat {
 
 		try {
 			renderShadowTranslucent.invoke(compatInternalInstance);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void checkFrame() {
+		if (compatInternalInstance == null) return;
+
+		try {
+			checkFrame.invoke(compatInternalInstance);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

@@ -30,6 +30,8 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL43C;
 import org.lwjgl.opengl.GL46C;
 
+import java.io.IOException;
+
 public class LodRendererEvents {
 	private static boolean eventHandlersBound = false;
 
@@ -60,7 +62,7 @@ public class LodRendererEvents {
 					setupBeforeRenderFrameBufferBinding();
 					setupBeforeRenderPassEvent();
 					setupBeforeApplyShaderEvent();
-
+					DHCompatInternal.INSTANCE.dhEnabled = DhApi.Delayed.configs.graphics().renderingEnabled().getValue();
 					Iris.logger.info("DH Iris events bound.");
 				}
 			};
@@ -71,12 +73,14 @@ public class LodRendererEvents {
 
 	// setup event handlers //
 
+
 	private static void setupSetDeferredBeforeRenderingEvent() {
 		DhApiBeforeRenderEvent beforeRenderEvent = new DhApiBeforeRenderEvent() {
 			// this event is called before DH starts any rendering prep
 			// canceling it will prevent DH from rendering for that frame
 			@Override
 			public void beforeRender(DhApiCancelableEventParam<DhApiRenderParam> event) {
+
 				DhApi.Delayed.renderProxy.setDeferTransparentRendering(IrisApi.getInstance().isShaderPackInUse());
 			}
 		};

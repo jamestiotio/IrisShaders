@@ -14,8 +14,11 @@ import net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline;
 import net.coderbot.iris.rendertarget.DepthTexture;
 import net.coderbot.iris.shaderpack.ProgramSource;
 import net.coderbot.iris.uniforms.CapturedRenderingState;
+import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL20C;
+
+import java.io.IOException;
 
 public class DHCompatInternal {
 	public static DHCompatInternal INSTANCE = new DHCompatInternal();
@@ -258,5 +261,16 @@ public class DHCompatInternal {
 
 		return depthTexNoTranslucent.getTextureId();
 	}
+	boolean dhEnabled;
 
+	public void checkFrame() {
+		if (dhEnabled != DhApi.Delayed.configs.graphics().renderingEnabled().getValue() && IrisApi.getInstance().isShaderPackInUse()) {
+			dhEnabled = DhApi.Delayed.configs.graphics().renderingEnabled().getValue();
+			try {
+				Iris.reload();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 }
