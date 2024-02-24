@@ -70,6 +70,10 @@ public class DHCompatInternal {
 			depthTexNoTranslucent = null;
 		}
 
+		if (!DhApi.Delayed.configs.graphics().renderingEnabled().getValue()) {
+			return;
+		}
+
 		if (pipeline.getDHTerrainShader().isEmpty() && pipeline.getDHWaterShader().isEmpty()) {
 			Iris.logger.warn("No DH shader found in this pack.");
 			return;
