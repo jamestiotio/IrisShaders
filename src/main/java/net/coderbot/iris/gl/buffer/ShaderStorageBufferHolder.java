@@ -69,6 +69,12 @@ public class ShaderStorageBufferHolder {
 		}
 	}
 
+	public int getBufferIndex(int index) {
+		if (buffers.length < index || buffers[index] == null) throw new RuntimeException("Tried to query a buffer for indirect dispatch that doesn't exist!");
+
+		return buffers[index].getId();
+	}
+
 	public void destroyBuffers() {
 		for (ShaderStorageBuffer buffer : buffers) {
 			if (buffer != null) {
