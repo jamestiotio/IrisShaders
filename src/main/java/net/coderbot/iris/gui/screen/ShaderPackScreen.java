@@ -1,6 +1,7 @@
 package net.coderbot.iris.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.GuiUtil;
@@ -10,7 +11,10 @@ import net.coderbot.iris.gui.element.ShaderPackOptionList;
 import net.coderbot.iris.gui.element.ShaderPackSelectionList;
 import net.coderbot.iris.gui.element.widget.AbstractElementWidget;
 import net.coderbot.iris.gui.element.widget.CommentedElementWidget;
+import net.coderbot.iris.mixin.GameRendererAccessor;
 import net.coderbot.iris.shaderpack.ShaderPack;
+import net.coderbot.iris.uniforms.FrameUpdateNotifier;
+import net.coderbot.iris.uniforms.transforms.SmoothedFloat;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -22,6 +26,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -84,6 +89,9 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 	private boolean guiHidden = false;
 	private float guiButtonHoverTimer = 0.0f;
 	private Button openFolderButton;
+	private FrameUpdateNotifier notifier = new FrameUpdateNotifier();
+
+	private SmoothedFloat menuTransition = new SmoothedFloat(2, 2, () -> this.optionMenuOpen ? 0.2f : (float) this.minecraft.options.getMenuBackgroundBlurriness(), notifier);
 
 	public ShaderPackScreen(Screen parent) {
 		super(Component.translatable("options.iris.shaderPackSelection.title"));
@@ -109,11 +117,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-		if (this.minecraft.level == null) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, delta);
-		} else if (!this.guiHidden) {
-			guiGraphics.fillGradient(0, 0, width, height, 0x4F232323, 0x4F232323);
-		}
+		notifier.onNewFrame();
 
 		if (Screen.hasControlDown() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_D)) {
 			Minecraft.getInstance().setScreen(new ConfirmScreen((option) -> {
@@ -125,6 +129,8 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 				Component.literal("No")));
 		}
 
+		super.render(guiGraphics, mouseX, mouseY, delta);
+
 		if (!this.guiHidden) {
 			if (optionMenuOpen && this.shaderOptionList != null) {
 				this.shaderOptionList.render(guiGraphics, mouseX, mouseY, delta);
@@ -134,7 +140,6 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 		}
 
 		float previousHoverTimer = this.guiButtonHoverTimer;
-		super.render(guiGraphics, mouseX, mouseY, delta);
 		if (previousHoverTimer == this.guiButtonHoverTimer) {
 			this.guiButtonHoverTimer = 0.0f;
 		}
@@ -197,11 +202,6 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			}, Iris.getUpdateChecker().getUpdateLink().orElse(""), true));
 		}
 		return super.mouseClicked(d, e, i);
-	}
-
-	@Override
-	public void renderTransparentBackground(GuiGraphics pScreen0) {
-		// Nope
 	}
 
 	@Override
@@ -350,6 +350,22 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 		} else {
 			this.hoveredElementCommentTimer = 0;
 		}
+	}
+
+	private void processFixedBlur(float tick) {
+		PostChain blurEffect = ((GameRendererAccessor) this.minecraft.gameRenderer).getBlurEffect();
+		if (blurEffect != null) {
+			blurEffect.setUniform("Alpha", Math.min((float) this.minecraft.options.getMenuBackgroundBlurriness(), menuTransition.getAsFloat()));
+			RenderSystem.enableBlend();
+			blurEffect.process(tick);
+			RenderSystem.disableBlend();
+		}
+	}
+
+	@Override
+	protected void renderBlurredBackground(float pScreen0) {
+		processFixedBlur(pScreen0);
+		this.minecraft.getMainRenderTarget().bindWrite(false);
 	}
 
 	@Override

@@ -20,10 +20,12 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -72,6 +74,33 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 		this.key = key1;
 		this.watcher = watcher1;
 		refresh();
+	}
+
+	private static final ResourceLocation MENU_LIST_BACKGROUND = new ResourceLocation("textures/gui/menu_background.png");
+
+	@Override
+	protected void renderListBackground(GuiGraphics pAbstractSelectionList0) {
+		RenderSystem.enableBlend();
+		pAbstractSelectionList0.blit(
+			MENU_LIST_BACKGROUND,
+			this.getX(),
+			this.getY() + 3,
+			(float)this.getRight(),
+			(float)(this.getBottom() + (int)this.getScrollAmount()),
+			this.getWidth(),
+			this.getHeight(),
+			32,
+			32
+		);
+		RenderSystem.disableBlend();
+	}
+
+	@Override
+	protected void renderListSeparators(GuiGraphics pAbstractSelectionList0) {
+		RenderSystem.enableBlend();
+		pAbstractSelectionList0.blit(CreateWorldScreen.HEADER_SEPARATOR, this.getX(), this.getY() + 2, 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
+		pAbstractSelectionList0.blit(CreateWorldScreen.FOOTER_SEPARATOR, this.getX(), this.getBottom(), 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
+		RenderSystem.disableBlend();
 	}
 
 	@Override
@@ -370,8 +399,8 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			GuiUtil.bindIrisWidgetsTexture();
-			GuiUtil.drawButton(guiGraphics, x - 2, y - 2, entryWidth, entryHeight + 2, hovered, !allowEnableShadersButton);
+			//GuiUtil.bindIrisWidgetsTexture();
+			//GuiUtil.drawButton(guiGraphics, x - 2, y - 2, entryWidth, entryHeight + 2, hovered, !allowEnableShadersButton);
 			guiGraphics.drawCenteredString(Minecraft.getInstance().font, getEnableDisableLabel(), (x + entryWidth / 2) - 2, y + (entryHeight - 11) / 2, 0xFFFFFF);
 		}
 
@@ -384,7 +413,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 			if (this.allowEnableShadersButton) {
 				setShadersEnabled(!this.shadersEnabled);
 				GuiUtil.playButtonClickSound();
-				return true;
+				return false;
 			}
 
 			return false;
@@ -396,23 +425,15 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 				if (this.allowEnableShadersButton) {
 					setShadersEnabled(!this.shadersEnabled);
 					GuiUtil.playButtonClickSound();
-					return true;
+					return false;
 				}
 			}
 
 			return false;
 		}
 
-		@Nullable
-		@Override
-		public ComponentPath nextFocusPath(FocusNavigationEvent pGuiEventListener0) {
-			return (!isFocused()) ? ComponentPath.leaf(this) : null;
-		}
-
-
-
 		public boolean isFocused() {
-			return this.list.getFocused() == this;
+			return false;
 		}
 
 		// Renders the label at an offset as to not look misaligned with the rest of the menu

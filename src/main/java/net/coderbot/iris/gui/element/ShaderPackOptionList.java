@@ -2,6 +2,7 @@ package net.coderbot.iris.gui.element;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.FileDialogUtil;
@@ -27,6 +28,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,6 +74,22 @@ public class ShaderPackOptionList extends IrisContainerObjectSelectionList<Shade
 	@Override
 	public int getRowWidth() {
 		return Math.min(400, width - 12);
+	}
+
+
+	@Override
+	protected void renderListBackground(GuiGraphics guiGraphics) {
+
+	}
+
+	@Override
+	protected void renderMenuBackground(GuiGraphics pAbstractWidget0, int pInt1, int pInt2, int pInt3, int pInt4) {
+
+	}
+
+	@Override
+	protected void renderListSeparators(GuiGraphics pAbstractSelectionList0) {
+
 	}
 
 	public void addHeader(Component text, boolean backButton) {
