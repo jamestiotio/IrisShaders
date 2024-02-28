@@ -228,13 +228,6 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			this.shaderOptionList = null;
 		}
 
-		if (inWorld) {
-			this.shaderPackList.setRenderBackground(false);
-			if (shaderOptionList != null) {
-				this.shaderOptionList.setRenderBackground(false);
-			}
-		}
-
 		this.clearWidgets();
 
 		if (!this.guiHidden) {
