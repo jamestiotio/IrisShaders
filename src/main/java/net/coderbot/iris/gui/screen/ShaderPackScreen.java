@@ -2,7 +2,6 @@ package net.coderbot.iris.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.GuiUtil;
 import net.coderbot.iris.gui.NavigationController;
@@ -21,7 +20,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -92,7 +90,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 	private FrameUpdateNotifier notifier = new FrameUpdateNotifier();
 	private float backgroundInit = 0.0f;
 
-	public SmoothedFloat menuTransition = new SmoothedFloat(2, 2, () -> {
+	public SmoothedFloat blurTransition = new SmoothedFloat(2, 2, () -> {
 		if (guiHidden) {
 			return 0.0f;
 		} else if (this.optionMenuOpen) {
@@ -375,7 +373,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 	private void processFixedBlur(float tick) {
 		PostChain blurEffect = ((GameRendererAccessor) this.minecraft.gameRenderer).getBlurEffect();
 		if (blurEffect != null) {
-			blurEffect.setUniform("Alpha", Math.min((float) this.minecraft.options.getMenuBackgroundBlurriness(), menuTransition.getAsFloat()));
+			blurEffect.setUniform("Alpha", Math.min((float) this.minecraft.options.getMenuBackgroundBlurriness(), blurTransition.getAsFloat()));
 			RenderSystem.enableBlend();
 			blurEffect.process(tick);
 			RenderSystem.disableBlend();
