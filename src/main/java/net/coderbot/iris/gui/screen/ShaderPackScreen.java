@@ -90,8 +90,25 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 	private float guiButtonHoverTimer = 0.0f;
 	private Button openFolderButton;
 	private FrameUpdateNotifier notifier = new FrameUpdateNotifier();
+	private float backgroundInit = 0.0f;
 
-	private SmoothedFloat menuTransition = new SmoothedFloat(2, 2, () -> this.optionMenuOpen ? 0.2f : (float) this.minecraft.options.getMenuBackgroundBlurriness(), notifier);
+	public SmoothedFloat menuTransition = new SmoothedFloat(2, 2, () -> {
+		if (guiHidden) {
+			return 0.0f;
+		} else if (this.optionMenuOpen) {
+			return 0.1f;
+		} else {
+            return (float) this.minecraft.options.getMenuBackgroundBlurriness();
+        }
+    }, notifier);
+
+	public SmoothedFloat listTransition = new SmoothedFloat(1, 1, () -> {
+		if (guiHidden || this.optionMenuOpen) {
+			return 0.0f;
+		} else {
+            return backgroundInit;
+        }
+    }, notifier);
 
 	public ShaderPackScreen(Screen parent) {
 		super(Component.translatable("options.iris.shaderPackSelection.title"));
@@ -115,9 +132,12 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 		refreshForChangedPack();
 	}
 
+
+
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
 		notifier.onNewFrame();
+		backgroundInit = 1.0f;
 
 		if (Screen.hasControlDown() && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_D)) {
 			Minecraft.getInstance().setScreen(new ConfirmScreen((option) -> {

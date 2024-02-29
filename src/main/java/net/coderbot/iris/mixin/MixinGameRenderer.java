@@ -14,6 +14,8 @@ import net.coderbot.iris.pipeline.newshader.CoreWorldRenderingPipeline;
 import net.coderbot.iris.pipeline.newshader.IrisProgramTypes;
 import net.coderbot.iris.pipeline.newshader.ShaderKey;
 
+import net.coderbot.iris.uniforms.CapturedRenderingState;
+import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.irisshaders.iris.api.v0.IrisApi;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,7 +46,8 @@ public class MixinGameRenderer {
 		Iris.logger.info("Hardware information:");
 		Iris.logger.info("CPU: " + GlUtil.getCpuInfo());
 		Iris.logger.info("GPU: " + GlUtil.getRenderer() + " (Supports OpenGL " + GlUtil.getOpenGLVersion() + ")");
-		Iris.logger.info("OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")");
+		Iris.logger.info("OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ")");			SystemTimeUniforms.COUNTER.reset();
+		SystemTimeUniforms.TIMER.reset();
 	}
 
 	@Redirect(method = "renderItemInHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderHandsWithItems(FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/player/LocalPlayer;I)V"))
@@ -59,6 +62,14 @@ public class MixinGameRenderer {
 	@Inject(method = "renderLevel", at = @At("TAIL"))
 	private void iris$runColorSpace(float pGameRenderer0, long pLong1, CallbackInfo ci) {
 		Iris.getPipelineManager().getPipeline().ifPresent(WorldRenderingPipeline::finalizeGameRendering);
+	}
+
+	@Inject(method = "render", at = @At("HEAD"))
+	private void iris$startFrame(float tickDelta, long startTime, boolean pBoolean2, CallbackInfo ci) {
+		// This allows certain functions like float smoothing to function outside a world.
+		CapturedRenderingState.INSTANCE.setRealTickDelta(tickDelta);
+		SystemTimeUniforms.COUNTER.beginFrame();
+		SystemTimeUniforms.TIMER.beginFrame(startTime);
 	}
 
 	@Redirect(method = "reloadShaders", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList()Ljava/util/ArrayList;"))

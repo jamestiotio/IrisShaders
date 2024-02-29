@@ -87,10 +87,7 @@ public class MixinLevelRenderer {
 		TickRateManager lvTickRateManager10 = this.minecraft.level.tickRateManager();
 		float fakeTickDelta = lvTickRateManager10.runsNormally() ? tickDelta : 1.0F;
 		CapturedRenderingState.INSTANCE.setTickDelta(fakeTickDelta);
-		CapturedRenderingState.INSTANCE.setRealTickDelta(tickDelta);
 		CapturedRenderingState.INSTANCE.setCloudTime((ticks + fakeTickDelta) * 0.03F);
-		SystemTimeUniforms.COUNTER.beginFrame();
-		SystemTimeUniforms.TIMER.beginFrame(startTime);
 
 		pipeline = Iris.getPipelineManager().preparePipeline(Iris.getCurrentDimension());
 

@@ -3,7 +3,12 @@ package net.coderbot.iris.gui.element;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.GuiUtil;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
@@ -21,12 +26,14 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 
@@ -80,7 +87,9 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 
 	@Override
 	protected void renderListBackground(GuiGraphics pAbstractSelectionList0) {
+		if (screen.listTransition.getAsFloat() < 0.02f) return;
 		RenderSystem.enableBlend();
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, screen.listTransition.getAsFloat());
 		pAbstractSelectionList0.blit(
 			MENU_LIST_BACKGROUND,
 			this.getX(),
@@ -93,13 +102,17 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 			32
 		);
 		RenderSystem.disableBlend();
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 	}
 
 	@Override
 	protected void renderListSeparators(GuiGraphics pAbstractSelectionList0) {
 		RenderSystem.enableBlend();
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, screen.listTransition.getAsFloat());
 		pAbstractSelectionList0.blit(CreateWorldScreen.HEADER_SEPARATOR, this.getX(), this.getY() + 2, 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
 		pAbstractSelectionList0.blit(CreateWorldScreen.FOOTER_SEPARATOR, this.getX(), this.getBottom(), 0.0F, 0.0F, this.getWidth(), 2, 32, 2);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.disableBlend();
 	}
 
