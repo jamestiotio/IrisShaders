@@ -107,6 +107,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
             return backgroundInit;
         }
     }, notifier);
+	private OldImageButton showHideButton;
 
 	public ShaderPackScreen(Screen parent) {
 		super(Component.translatable("options.iris.shaderPackSelection.title"));
@@ -147,14 +148,17 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 				Component.literal("No")));
 		}
 
-		super.render(guiGraphics, mouseX, mouseY, delta);
-
 		if (!this.guiHidden) {
+			super.render(guiGraphics, mouseX, mouseY, delta);
+
 			if (optionMenuOpen && this.shaderOptionList != null) {
 				this.shaderOptionList.render(guiGraphics, mouseX, mouseY, delta);
 			} else {
 				this.shaderPackList.render(guiGraphics, mouseX, mouseY, delta);
 			}
+		} else {
+			this.renderBlurredBackground(delta);
+			this.showHideButton.render(guiGraphics, mouseX, mouseY, delta);
 		}
 
 		float previousHoverTimer = this.guiButtonHoverTimer;
@@ -319,6 +323,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			showHideButton.setTooltipDelay(Duration.ofSeconds(10));
 
 			this.addRenderableWidget(showHideButton);
+			this.showHideButton = showHideButton;
 		}
 
 		// NB: Don't let comment remain when exiting options screen
