@@ -1,39 +1,28 @@
 package net.coderbot.iris.gui.element;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.coderbot.iris.Iris;
 import net.coderbot.iris.gui.GuiUtil;
 import net.coderbot.iris.gui.screen.ShaderPackScreen;
+import net.coderbot.iris.uniforms.SystemTimeUniforms;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 
@@ -43,9 +32,9 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackSelectionList.BaseEntry> {
 	private static final Component PACK_LIST_LABEL = Component.translatable("pack.iris.list.label").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
@@ -54,6 +43,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 	private final TopButtonRowEntry topButtonRow;
 	private final WatchService watcher;
 	private final WatchKey key;
+	private final PinnedEntry downloadButton;
 	private boolean keyValid;
 	private ShaderPackEntry applied = null;
 
@@ -64,6 +54,14 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 
 		this.screen = screen;
 		this.topButtonRow = new TopButtonRowEntry(this, Iris.getIrisConfig().areShadersEnabled());
+		this.downloadButton = new PinnedEntry(Component.literal("Download Shaders"), () -> {
+            this.minecraft.setScreen(new ConfirmLinkScreen(bl -> {
+                if (bl) {
+                    Util.getPlatform().openUri("https://modrinth.com/shaders");
+                }
+                this.minecraft.setScreen(this.screen);
+            }, "https://modrinth.com/shaders", true));
+        }, this);
 		try {
 			watcher1 = FileSystems.getDefault().newWatchService();
 			key1 = Iris.getShaderpacksDirectory().register(watcher1,
@@ -191,9 +189,13 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 
 		this.addEntry(topButtonRow);
 
+		if (names.isEmpty()) {
+			this.addEntry(downloadButton);
+		}
+
 		// Only allow the enable/disable shaders button if the user has
 		// added a shader pack. Otherwise, the button will be disabled.
-		topButtonRow.allowEnableShadersButton = names.size() > 0;
+		topButtonRow.allowEnableShadersButton = !names.isEmpty();
 
 		int index = 0;
 
@@ -448,22 +450,67 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 		public boolean isFocused() {
 			return false;
 		}
+	}
 
-		// Renders the label at an offset as to not look misaligned with the rest of the menu
-		public static class EnableShadersButtonElement extends IrisElementRow.TextButtonElement {
-			private int centerX;
+	private static class PinnedEntry extends BaseEntry {
+		private final ShaderPackSelectionList list;
+		private final Component label;
+		private final Runnable onClick;
 
-			public EnableShadersButtonElement(Component text, Function<IrisElementRow.TextButtonElement, Boolean> onClick) {
-				super(text, onClick);
+		public boolean allowPressButton = true;
+
+		public PinnedEntry(Component label, Runnable onClick, ShaderPackSelectionList list) {
+			this.label = label;
+			this.onClick = onClick;
+			this.list = list;
+		}
+
+		@Override
+		public void render(GuiGraphics guiGraphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+			GuiUtil.bindIrisWidgetsTexture();
+			GuiUtil.drawButton(guiGraphics, x - 2, y - 2, entryWidth, entryHeight + 2, hovered, !allowPressButton);
+			guiGraphics.drawCenteredString(Minecraft.getInstance().font, label, (x + entryWidth / 2) - 2, y + (entryHeight - 11) / 2, 0xFFFFFF);
+		}
+
+		@Override
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			if (this.allowPressButton) {
+				GuiUtil.playButtonClickSound();
+				onClick.run();
+				return false;
 			}
 
-			@Override
-			public void renderLabel(GuiGraphics guiGraphics, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
-				int textX = this.centerX - (int)(this.font.width(this.text) * 0.5);
-				int textY = y + (int)((height - 8) * 0.5);
+			return false;
+		}
 
-				guiGraphics.drawString(this.font, this.text, textX, textY, 0xFFFFFF);
+		@Override
+		public boolean keyPressed(int keycode, int scancode, int modifiers) {
+			if (keycode == GLFW.GLFW_KEY_ENTER) {
+				if (this.allowPressButton) {
+					GuiUtil.playButtonClickSound();
+					onClick.run();
+					return false;
+				}
 			}
+
+			return false;
+		}
+	}
+
+	// Renders the label at an offset as to not look misaligned with the rest of the menu
+	public static class CenteredButtonElement extends IrisElementRow.TextButtonElement {
+		private int centerX;
+
+		public CenteredButtonElement(Component text, Function<IrisElementRow.TextButtonElement, Boolean> onClick) {
+			super(text, onClick);
+		}
+
+		@Override
+		public void renderLabel(GuiGraphics guiGraphics, int x, int y, int width, int height, int mouseX, int mouseY, float tickDelta, boolean hovered) {
+			int textX = this.centerX - (int)(this.font.width(this.text) * 0.5);
+			int textY = y + (int)((height - 8) * 0.5);
+
+			guiGraphics.drawString(this.font, this.text, textX, textY, 0xFFFFFF);
 		}
 	}
 }
