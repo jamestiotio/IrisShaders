@@ -426,6 +426,9 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 			this.init();
 
 			this.setFocused(null);
+		} else if (key == GLFW.GLFW_KEY_F1 && this.showHideButton != null) {
+			this.guiHidden = !guiHidden;
+			this.init();
 		}
 
 		return this.guiHidden || super.keyPressed(key, j, k);
