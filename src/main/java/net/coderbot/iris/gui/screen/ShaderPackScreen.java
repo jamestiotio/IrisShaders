@@ -108,6 +108,14 @@ public class ShaderPackScreen extends Screen implements HudHideable {
             return backgroundInit;
         }
     }, notifier);
+
+	public SmoothedFloat buttonTransition = new SmoothedFloat(1, 1, () -> {
+		if (guiHidden) {
+			return 0.0f;
+		} else {
+            return backgroundInit;
+        }
+    }, notifier);
 	private OldImageButton showHideButton;
 
 	public ShaderPackScreen(Screen parent) {
@@ -260,16 +268,16 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 				this.addRenderableWidget(shaderPackList);
 			}
 
-			this.addRenderableWidget(IrisButton.iris$builder(CommonComponents.GUI_DONE, button -> onClose()).bounds(bottomCenter + 104, this.height - 27, 100, 20
+			this.addRenderableWidget(IrisButton.iris$builder(CommonComponents.GUI_DONE, button -> onClose(), buttonTransition).bounds(bottomCenter + 104, this.height - 27, 100, 20
 				).build());
 
-			this.addRenderableWidget(IrisButton.iris$builder(Component.translatable("options.iris.apply"), button -> this.applyChanges()).bounds(bottomCenter, this.height - 27, 100, 20
+			this.addRenderableWidget(IrisButton.iris$builder(Component.translatable("options.iris.apply"), button -> this.applyChanges(), buttonTransition).bounds(bottomCenter, this.height - 27, 100, 20
 				).build());
 
-			this.addRenderableWidget(IrisButton.iris$builder(CommonComponents.GUI_CANCEL, button -> this.dropChangesAndClose()).bounds(bottomCenter - 104, this.height - 27, 100, 20
+			this.addRenderableWidget(IrisButton.iris$builder(CommonComponents.GUI_CANCEL, button -> this.dropChangesAndClose(), buttonTransition).bounds(bottomCenter - 104, this.height - 27, 100, 20
 				).build());
 
-			this.openFolderButton = IrisButton.iris$builder(Component.translatable("options.iris.openShaderPackFolder"), button -> openShaderPackFolder()).bounds(topCenter - 78, this.height - 51, 152, 20
+			this.openFolderButton = IrisButton.iris$builder(Component.translatable("options.iris.openShaderPackFolder"), button -> openShaderPackFolder(), buttonTransition).bounds(topCenter - 78, this.height - 51, 152, 20
 			).build();
 			this.addRenderableWidget(openFolderButton);
 
@@ -284,7 +292,7 @@ public class ShaderPackScreen extends Screen implements HudHideable {
 					this.applyChanges();
 					setFocused(shaderPackList.getFocused());
 					this.init();
-				}
+				}, buttonTransition
 			).bounds(topCenter + 78, this.height - 51, 152, 20
 				).build());
 

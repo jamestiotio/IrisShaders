@@ -2,6 +2,7 @@ package net.coderbot.iris.gui.element.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.coderbot.iris.Iris;
+import net.coderbot.iris.gl.uniform.FloatSupplier;
 import net.coderbot.iris.gui.GuiUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,25 +13,28 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 public class IrisButton extends Button {
-	public IrisButton(int pButton0, int pInt1, int pInt2, int pInt3, Component pComponent4, OnPress pButton$OnPress5, CreateNarration pButton$CreateNarration6) {
+	private final FloatSupplier alphaSupplier;
+
+	public IrisButton(int pButton0, int pInt1, int pInt2, int pInt3, Component pComponent4, OnPress pButton$OnPress5, CreateNarration pButton$CreateNarration6, FloatSupplier alpha) {
 		super(pButton0, pInt1, pInt2, pInt3, pComponent4, pButton$OnPress5, pButton$CreateNarration6);
+		this.alphaSupplier = alpha;
 	}
 
 	@Override
 	protected void renderWidget(GuiGraphics guiGraphics, int pInt1, int pInt2, float pFloat3) {
 		Minecraft lvMinecraft5 = Minecraft.getInstance();
-		guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.isHoveredOrFocused() ? this.alpha * 1.8f : this.alpha);
+		guiGraphics.setColor(1.0F, 1.0F, 1.0F, this.isHoveredOrFocused() ? this.alphaSupplier.getAsFloat() * 1.8f : this.alphaSupplier.getAsFloat());
 		RenderSystem.enableBlend();
 		RenderSystem.enableDepthTest();
 		GuiUtil.bindIrisWidgetsTexture();
 		GuiUtil.drawButton(guiGraphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.isHoveredOrFocused(), this.active);
 		guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int lvInt6 = this.active ? 16777215 : 10526880;
-		this.renderString(guiGraphics, lvMinecraft5.font, lvInt6 | Mth.ceil(this.alpha * 255.0F) << 24);
+		this.renderString(guiGraphics, lvMinecraft5.font, lvInt6 | Mth.ceil(this.alphaSupplier.getAsFloat() * 255.0F) << 24);
 	}
 
-	public static IrisButton.Builder iris$builder(Component pComponent0, Button.OnPress pButton$OnPress1) {
-		return new IrisButton.Builder(pComponent0, pButton$OnPress1);
+	public static IrisButton.Builder iris$builder(Component pComponent0, Button.OnPress pButton$OnPress1, FloatSupplier alpha) {
+		return new IrisButton.Builder(pComponent0, pButton$OnPress1, alpha);
 	}
 
 	public static class Builder {
@@ -43,10 +47,12 @@ public class IrisButton extends Button {
 		private int width = 150;
 		private int height = 20;
 		private Button.CreateNarration createNarration = Button.DEFAULT_NARRATION;
+		private FloatSupplier alpha;
 
-		public Builder(Component pButton$Builder0, Button.OnPress pButton$OnPress1) {
+		public Builder(Component pButton$Builder0, Button.OnPress pButton$OnPress1, FloatSupplier alpha) {
 			this.message = pButton$Builder0;
 			this.onPress = pButton$OnPress1;
+			this.alpha = alpha;
 		}
 
 		public IrisButton.Builder pos(int pButton$Builder0, int pInt1) {
@@ -81,7 +87,7 @@ public class IrisButton extends Button {
 		}
 
 		public IrisButton build() {
-			IrisButton lvButton1 = new IrisButton(this.x, this.y, this.width, this.height, this.message, this.onPress, this.createNarration);
+			IrisButton lvButton1 = new IrisButton(this.x, this.y, this.width, this.height, this.message, this.onPress, this.createNarration, this.alpha);
 			lvButton1.setTooltip(this.tooltip);
 			return lvButton1;
 		}
