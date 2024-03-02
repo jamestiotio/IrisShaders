@@ -75,7 +75,7 @@ public class StringElementWidget extends BaseOptionElementWidget<OptionMenuStrin
 	@Override
 	protected Component createValueLabel() {
 		return prefix.copy().append(GuiUtil.translateOrDefault(
-				Component.literal(getValue()).append(suffix),
+			Component.literal(getValue()).append(suffix),
 				"value." + this.option.getName() + "." + getValue())).withStyle(style -> style.withColor(TextColor.fromRgb(0x6688ff)));
 	}
 
