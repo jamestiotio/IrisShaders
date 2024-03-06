@@ -41,7 +41,6 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 		super(client, width, bottom, top, bottom, left, right, 20);
 		WatchKey key1;
 		WatchService watcher1;
-		this.setRenderBackground(false);
 
 		this.screen = screen;
 		this.topButtonRow = new TopButtonRowEntry(this, Iris.getIrisConfig().areShadersEnabled());
@@ -74,7 +73,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics pAbstractSelectionList0, int pInt1, int pInt2, float pFloat3) {
+	public void render(GuiGraphics pAbstractSelectionList0, int pInt1, int pInt2, float pFloat3) {
 		if (keyValid) {
 			for (WatchEvent<?> event : key.pollEvents()) {
 				if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
@@ -86,7 +85,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 			keyValid = key.reset();
 		}
 
-		super.renderWidget(pAbstractSelectionList0, pInt1, pInt2, pFloat3);
+		super.render(pAbstractSelectionList0, pInt1, pInt2, pFloat3);
 	}
 
 	public void close() throws IOException {
@@ -171,15 +170,7 @@ public class ShaderPackSelectionList extends IrisObjectSelectionList<ShaderPackS
 
 	@Override
 	protected void renderDecorations(GuiGraphics pAbstractSelectionList0, int pInt1, int pInt2) {
-		// Renders top/bottom dirt
-		int lvInt9 = 32;
-		pAbstractSelectionList0.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-		pAbstractSelectionList0.blit(Screen.BACKGROUND_LOCATION, this.getX(), 0, 0.0F, 0.0F, this.width, this.getY(), 32, 32);
-		pAbstractSelectionList0.blit(Screen.BACKGROUND_LOCATION, this.getX(), this.getBottom(), 0.0F, 0.0F, this.width, this.height, 32, 32);
-		pAbstractSelectionList0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-		int lvInt10 = 4;
-		pAbstractSelectionList0.fillGradient(RenderType.guiOverlay(), this.getX(), this.getY(), this.getRight(), this.getY() + 4, -16777216, 0, 0);
-		pAbstractSelectionList0.fillGradient(RenderType.guiOverlay(), this.getX(), this.getBottom() - 4, this.getRight(), this.getBottom(), 0, -16777216, 0);
+		super.renderDecorations(pAbstractSelectionList0, pInt1, pInt2);
 
 	}
 

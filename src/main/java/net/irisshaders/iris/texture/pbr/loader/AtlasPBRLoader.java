@@ -122,7 +122,6 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 		int targetFrameWidth = sprite.contents().width();
 		int targetFrameHeight = sprite.contents().height();
 		if (frameWidth != targetFrameWidth || frameHeight != targetFrameHeight) {
-			try {
 				// We can assume the following is always true:
 				// imageWidth % frameWidth == 0 && imageHeight % frameHeight == 0
 				int targetImageWidth = imageWidth / frameWidth * targetFrameWidth;
@@ -151,14 +150,10 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 						animationAccessor.setFrameHeight(frameHeight);
 					}
 				}
-			} catch (Exception e) {
-				Iris.logger.error("Something bad happened trying to load PBR texture " + spriteName.getPath() + pbrType.getSuffix() + "!", e);
-				throw e;
-			}
 		}
 
 		ResourceLocation pbrSpriteName = new ResourceLocation(spriteName.getNamespace(), spriteName.getPath() + pbrType.getSuffix());
-		PBRSpriteContents pbrSpriteContents = new PBRSpriteContents(pbrSpriteName, new FrameSize(frameWidth, frameHeight), nativeImage, animationMetadata, pbrType);
+		PBRSpriteContents pbrSpriteContents = new PBRSpriteContents(pbrSpriteName, new FrameSize(frameWidth, frameHeight), nativeImage, metadataSection, pbrType);
 		pbrSpriteContents.increaseMipLevel(mipLevel);
 		return new PBRTextureAtlasSprite(pbrSpriteName, pbrSpriteContents, atlasWidth, atlasHeight, sprite.getX(), sprite.getY(), sprite);
 	}
@@ -175,7 +170,7 @@ public class AtlasPBRLoader implements PBRTextureLoader<TextureAtlas> {
 	protected static class PBRSpriteContents extends SpriteContents implements CustomMipmapGenerator.Provider {
 		protected final PBRType pbrType;
 
-		public PBRSpriteContents(ResourceLocation name, FrameSize size, NativeImage image, ResourceMetadata metadata, PBRType pbrType) {
+		public PBRSpriteContents(ResourceLocation name, FrameSize size, NativeImage image, AnimationMetadataSection metadata, PBRType pbrType) {
 			super(name, size, image, metadata);
 			this.pbrType = pbrType;
 		}

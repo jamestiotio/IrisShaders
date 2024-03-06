@@ -97,6 +97,14 @@ public class Iris {
 	// Change this for snapshots!
 	private static final String backupVersionNumber = "1.20.3";
 
+	static {
+		// Custom fix only for me for Plasma 6
+		if (FabricLoader.getInstance().isDevelopmentEnvironment() && Util.getPlatform() == Util.OS.LINUX && System.getProperty("user.name").contains("ims")) {
+			LibC.INSTANCE.setenv("__GL_THREADED_OPTIMIZATIONS", "0", 1);
+			Configuration.GLFW_LIBRARY_NAME.set("/usr/lib/libglfw.so");
+		}
+	}
+
 	/**
 	 * Called once RenderSystem#initRenderer has completed. This means that we can safely access OpenGL.
 	 */

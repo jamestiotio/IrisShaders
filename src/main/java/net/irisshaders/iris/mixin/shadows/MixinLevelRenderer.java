@@ -11,10 +11,6 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(LevelRenderer.class)
 public class MixinLevelRenderer implements CullingDataCache {
-	@Shadow
-	@Final
-	@Mutable
-	private ObjectArrayList visibleSections;
 
 	@Unique
 	private ObjectArrayList savedRenderChunks = new ObjectArrayList(69696);
@@ -53,17 +49,5 @@ public class MixinLevelRenderer implements CullingDataCache {
 
 	@Unique
 	private void swap() {
-		ObjectArrayList tmpList = visibleSections;
-		visibleSections = savedRenderChunks;
-		savedRenderChunks = tmpList;
-		double tmp;
-
-		tmp = prevCamRotX;
-		prevCamRotX = savedLastCameraPitch;
-		savedLastCameraPitch = tmp;
-
-		tmp = prevCamRotY;
-		prevCamRotY = savedLastCameraYaw;
-		savedLastCameraYaw = tmp;
 	}
 }
