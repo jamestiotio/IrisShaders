@@ -70,6 +70,11 @@ public class Iris {
 	 */
 	public static final String MODNAME = "Iris";
 
+	static {
+		if (FabricLoader.getInstance().isDevelopmentEnvironment() && System.getProperty("user.name").contains("ims")) {
+			Configuration.GLFW_LIBRARY_NAME.set("/usr/lib/libglfw.so");
+		}
+	}
 	public static final IrisLogging logger = new IrisLogging(MODNAME);
 	private static final Map<String, String> shaderPackOptionQueue = new HashMap<>();
 	public static NamespacedId lastDimension = null;
@@ -532,6 +537,13 @@ public class Iris {
 		if (Minecraft.getInstance().level != null) {
 			Iris.getPipelineManager().preparePipeline(Iris.getCurrentDimension());
 		}
+
+		if (loadedIncompatiblePack() && Minecraft.getInstance().player != null) {
+			Minecraft.getInstance().gui.setTimes(10, 70, 140);
+			Iris.logger.warn("Incompatible pack for DH!");
+			Minecraft.getInstance().gui.setTitle(Component.literal("This pack doesn't have DH support").withStyle(ChatFormatting.BOLD, ChatFormatting.RED));
+			Minecraft.getInstance().gui.setSubtitle(Component.literal("Distant Horizons (DH) chunks won't show up. This isn't a bug, get another shader.").withStyle(ChatFormatting.RED));
+		}
 	}
 
 	/**
@@ -689,6 +701,10 @@ public class Iris {
 		}
 
 		return shaderpacksDirectoryManager;
+	}
+
+	public static boolean loadedIncompatiblePack() {
+		return DHCompat.lastPackIncompatible();
 	}
 
 	/**
