@@ -140,6 +140,7 @@ public final class CommonUniforms {
 			.uniform1b(PER_FRAME, "is_sneaking", CommonUniforms::isSneaking)
 			.uniform1b(PER_FRAME, "is_sprinting", CommonUniforms::isSprinting)
 			.uniform1b(PER_FRAME, "is_hurt", CommonUniforms::isHurt)
+			.uniform1b(PER_FRAME, "is_alive", CommonUniforms::isAlive)
 			.uniform1b(PER_FRAME, "is_invisible", CommonUniforms::isInvisible)
 			.uniform1b(PER_FRAME, "is_burning", CommonUniforms::isBurning)
 			.uniform1b(PER_FRAME, "is_on_ground", CommonUniforms::isOnGround)
@@ -173,6 +174,14 @@ public final class CommonUniforms {
 	private static boolean isHurt() {
 		if (client.player != null) {
 			return client.player.hurtTime > 0; // Do not use isHurt, that's not what we want!
+		} else {
+			return false;
+		}
+	}
+
+	private static boolean isAlive() {
+		if (client.player != null) {
+			return client.player.isAlive();
 		} else {
 			return false;
 		}

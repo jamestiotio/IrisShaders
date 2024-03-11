@@ -27,6 +27,8 @@ public class MixinClientPacketListener {
 		Iris.getStoredError().ifPresent(e ->
 			Minecraft.getInstance().player.displayClientMessage(Component.translatable(e instanceof ShaderCompileException ? "iris.load.failure.shader" : "iris.load.failure.generic").append(Component.literal("Copy Info").withStyle(arg -> arg.withUnderlined(true).withColor(ChatFormatting.BLUE).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, e.getMessage())))), false));
 
+		Minecraft.getInstance().gui.getChat().addMessage(Component.literal("This is a beta version of Iris. Do not expect everything to work.").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+
 		if (Iris.loadedIncompatiblePack()) {
 			Minecraft.getInstance().gui.setTimes(10, 70, 140);
 			Iris.logger.warn("Incompatible pack for DH!");

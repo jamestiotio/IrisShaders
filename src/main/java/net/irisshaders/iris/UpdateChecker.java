@@ -16,6 +16,7 @@ import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
@@ -157,7 +158,7 @@ public class UpdateChecker {
 		return null;
 	}
 
-	@Nullable
+	@NotNull
 	public Optional<BetaInfo> getBetaInfo() {
 		if (betaInfo != null && betaInfo.isDone()) {
 			try {
